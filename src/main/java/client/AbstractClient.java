@@ -1,5 +1,6 @@
 package client;
 
+import config.Config;
 import config.IConfig;
 import request.IRequest;
 import response.IResponse;
@@ -23,6 +24,8 @@ public abstract class AbstractClient implements IClient {
     }
 
     public IConfig getDefaultConfig() {
-        return null;
+        IConfig ret = new Config();
+        ret.setEndpoint("https://platform.flxone.com/api/v2");
+        return ret;
     }
 }
