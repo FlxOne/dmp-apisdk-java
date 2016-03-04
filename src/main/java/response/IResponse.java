@@ -19,4 +19,6 @@ public interface IResponse {
     boolean equals(Object o);
 
     int hashCode();
+
+    public String getCsrfToken();
 }

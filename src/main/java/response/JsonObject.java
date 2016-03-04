@@ -27,10 +27,6 @@ public class JsonObject {
         return o.has(memberName);
     }
 
-    public JsonElement get(String memberName) {
-        return (JsonElement)o.get(memberName);
-    }
-
     public JsonPrimitive getAsJsonPrimitive(String memberName) {
         return new JsonPrimitive(o.getAsJsonPrimitive(memberName));
     }

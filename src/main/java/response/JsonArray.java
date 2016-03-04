@@ -26,10 +26,6 @@ public class JsonArray {
         return list.iterator();
     }
 
-    public JsonElement get(int i) {
-        return (JsonElement)a.get(i);
-    }
-
     public Number getAsNumber() {
         return a.getAsNumber();
     }

@@ -30,6 +30,10 @@ public abstract class AbstractResponse implements IResponse {
         return jsonOuterResponseObject.getAsJsonObject("response");
     }
 
+    public String getCsrfToken() {
+        return jsonOuterResponseObject.has("csrf") ? jsonOuterResponseObject.get("csrf").getAsString() : null;
+    }
+
     public Set<Map.Entry<String, JsonElement>> entrySet() {
         Set<Map.Entry<String, JsonElement>> es = new HashSet<Map.Entry<String, JsonElement>>();
         for (Map.Entry<String, com.google.gson.JsonElement> kv : this.getResponseObject().entrySet()) {

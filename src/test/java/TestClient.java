@@ -33,7 +33,8 @@ public class TestClient {
         // Execute
         IResponse resp = client.get(req);
 
+
         // Validate ID
-        assertTrue(resp.getAsJsonObject("user").get("id").getAsString().length() > 0);
+        assertTrue(resp.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
     }
 }
