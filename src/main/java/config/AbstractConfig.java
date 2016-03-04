@@ -21,7 +21,7 @@ public class AbstractConfig implements IConfig {
         this.endpoint = endpoint;
     }
 
-    public void setCredentials(String user, String password) {
+    public void setCredentials(String username, String password) {
         this.setPassword(password);
         this.setUsername(username);
     }
