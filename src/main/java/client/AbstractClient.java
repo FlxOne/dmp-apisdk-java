@@ -12,6 +12,8 @@ import org.apache.http.util.EntityUtils;
 import request.IRequest;
 import response.IResponse;
 import response.Response;
+import response.ResponseStatus;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -26,13 +28,37 @@ public abstract class AbstractClient implements IClient {
         this.client = HttpClients.createDefault();
     }
 
-    public IResponse get(IRequest request) throws Exception {
-        HttpGet getRequest = new HttpGet(this.getURIBuilderForRequest(request).build());
+    public IResponse get(IRequest request) throws ClientException {
+        try {
+            HttpGet getRequest = new HttpGet(this.getURIBuilderForRequest(request).build());
+            return execute(getRequest);
+        } catch (Exception e) {
+            throw new ClientException(e);
+        }
+    }
 
-        // @todo: Move this to a function that does retry and backoff use it for all methods
-        CloseableHttpResponse cHttpResp = this.client.execute((HttpUriRequest)getRequest);
+    protected IResponse execute(HttpUriRequest req) {
+        CloseableHttpResponse cHttpResp;
+        Response resp = null;
+        for (int i = 0; i < config.getMaxRetries(); i++) {
+            try {
+                // Execute request
+                cHttpResp = this.client.execute(req);
 
-        return new Response(closeableHttpResponseToString(cHttpResp));
+                // Parse response
+                resp = new Response(closeableHttpResponseToString(cHttpResp));
+
+                // Valid?
+                if (resp.getStatus().equals(ResponseStatus.OK)) {
+                    // OK, stop retrying
+                    break;
+                }
+            } catch (Exception x) {
+                // Handle + exponential backoff
+                // @todo check if session dead
+            }
+        }
+        return resp;
     }
 
     public IResponse put(IRequest request) {

@@ -4,6 +4,7 @@ public class AbstractConfig implements IConfig {
     protected String endpoint;
     protected String username;
     protected String password;
+    protected int maxRetries;
 
     public String getEndpoint() {
         return this.endpoint;
@@ -15,6 +16,12 @@ public class AbstractConfig implements IConfig {
 
     public String getPassword() {
         return this.password;
+    }
+
+    public int getMaxRetries() { return this.maxRetries; }
+
+    public void setMaxRetries(int n) {
+        this.maxRetries = n;
     }
 
     public void setEndpoint(String endpoint) {
