@@ -18,8 +18,11 @@ public class TestClient {
     public void testClient() throws ClientException {
         // Conf
         IConfig conf = Config.getDefault();
-        conf.setCredentials(System.getProperty("DMP_USERNAME"), System.getProperty("DMP_PASSWORD"));
-        conf.setEndpoint(System.getProperty("DMP_ENDPOINT", conf.getEndpoint()));
+        conf.setCredentials(System.getenv("DMP_USERNAME"), System.getenv("DMP_PASSWORD"));
+        String endpoint = System.getenv("DMP_ENDPOINT");
+        if (endpoint != null) {
+            conf.setEndpoint(endpoint);
+        }
 
         // Client
         IClient client = new Client(conf);
