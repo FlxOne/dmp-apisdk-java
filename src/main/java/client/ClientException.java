@@ -7,4 +7,8 @@ public class ClientException extends Exception {
     public ClientException(Exception e) {
         super(e);
     }
+
+    public void printStacktrace() {
+        printStackTrace();
+    }
 }

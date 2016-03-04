@@ -71,4 +71,8 @@ public abstract class AbstractResponse implements IResponse {
     public int hashCode() {
         return this.getResponseObject().hashCode();
     }
+
+    public String toString() {
+        return getResponseObject().toString();
+    }
 }
