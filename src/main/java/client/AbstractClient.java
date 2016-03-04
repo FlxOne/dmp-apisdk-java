@@ -2,10 +2,7 @@ package client;
 
 import config.IConfig;
 import org.apache.http.ParseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -104,12 +101,24 @@ public abstract class AbstractClient implements IClient {
         return resp;
     }
 
-    public IResponse put(IRequest request) {
-        return null;
+    public IResponse put(IRequest request) throws ClientException {
+        try {
+            HttpPut r = new HttpPut(this.getURIBuilderForRequest(request).build());
+            // @todo body, not use uri builder above
+            return execute(r);
+        } catch (Exception e) {
+            throw new ClientException(e);
+        }
     }
 
-    public IResponse delete(IRequest request) {
-        return null;
+    public IResponse delete(IRequest request) throws ClientException {
+        try {
+            HttpDelete r = new HttpDelete(this.getURIBuilderForRequest(request).build());
+            // @todo body, not use uri builder above
+            return execute(r);
+        } catch (Exception e) {
+            throw new ClientException(e);
+        }
     }
 
     public IResponse post(IRequest request) throws ClientException {
