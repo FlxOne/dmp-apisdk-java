@@ -1,4 +1,4 @@
 package response;
 
-public class AbstractResponse implements IResponse {
+public abstract class AbstractResponse implements IResponse {
 }
