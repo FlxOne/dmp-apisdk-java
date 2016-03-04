@@ -4,7 +4,8 @@ import config.IConfig;
 import request.IRequest;
 import response.IResponse;
 
-public class AbstractClient implements IClient {
+public abstract class AbstractClient implements IClient {
+
     public IResponse get(IRequest request) {
         return null;
     }
