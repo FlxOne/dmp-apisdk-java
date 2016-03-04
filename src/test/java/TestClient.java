@@ -10,9 +10,6 @@ import response.IResponse;
 
 import static junit.framework.TestCase.assertTrue;
 
-/**
- * Created by rv186025 on 04/03/16.
- */
 public class TestClient {
     @Test
     public void testClient() throws ClientException {
