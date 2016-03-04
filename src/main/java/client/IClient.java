@@ -9,5 +9,4 @@ public interface IClient {
     IResponse put(IRequest request);
     IResponse delete(IRequest request);
     IResponse post(IRequest request);
-    IConfig getDefaultConfig();
 }

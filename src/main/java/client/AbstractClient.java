@@ -22,10 +22,4 @@ public abstract class AbstractClient implements IClient {
     public IResponse post(IRequest request) {
         return null;
     }
-
-    public IConfig getDefaultConfig() {
-        IConfig ret = new Config();
-        ret.setEndpoint("https://platform.flxone.com/api/v2");
-        return ret;
-    }
 }
