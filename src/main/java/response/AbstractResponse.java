@@ -17,10 +17,12 @@ public abstract class AbstractResponse implements IResponse {
 
     public ResponseStatus getStatus() {
         try {
-            if (getResponseObject().get("status").equals("OK")) {
+            if (getResponseObject().getAsJsonPrimitive("status").getAsString().equals("OK")) {
                 return ResponseStatus.OK;
             }
         } catch (Exception e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
             // Do nothing
         }
         return ResponseStatus.ERROR;

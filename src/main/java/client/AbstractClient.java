@@ -17,6 +17,7 @@ import response.ResponseStatus;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Random;
 
 
 public abstract class AbstractClient implements IClient {
@@ -24,10 +25,12 @@ public abstract class AbstractClient implements IClient {
     protected IConfig config;
     protected String authToken = null;
     protected String csrfToken = null;
+    protected Random random;
 
     public AbstractClient(IConfig config) {
         this.config = config;
         this.client = HttpClients.createDefault();
+        this.random = new Random();
     }
 
     public IResponse get(IRequest request) throws ClientException {
@@ -96,6 +99,13 @@ public abstract class AbstractClient implements IClient {
                 // @todo check if session dead
                 System.err.println(x);
                 x.printStackTrace();
+
+                // Exponential backoff with jitter
+                try {
+                    Thread.sleep((1000 * i * i) + random.nextInt(100));
+                } catch (InterruptedException ix) {
+                    // Ignore
+                }
             }
         }
         return resp;
