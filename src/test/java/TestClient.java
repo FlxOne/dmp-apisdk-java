@@ -15,6 +15,9 @@ public class TestClient {
     public void testClient() throws ClientException {
         // Conf
         IConfig conf = Config.getDefault();
+
+        // Credentials are read from system env, put in ~/.bashrc (e.g. export DMP_USERNAME=test )
+        // in order to take effect you might need to reload env, restart editor or reboot machine
         conf.setCredentials(System.getenv("DMP_USERNAME"), System.getenv("DMP_PASSWORD"));
         String endpoint = System.getenv("DMP_ENDPOINT");
         if (endpoint != null) {
