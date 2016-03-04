@@ -5,9 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by rv186026 on 3/4/16.
- */
 public class JsonObject {
     private final com.google.gson.JsonObject o;
 
