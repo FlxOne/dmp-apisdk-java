@@ -7,6 +7,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import request.IRequest;
 import request.Request;
 import response.IResponse;
@@ -26,6 +28,7 @@ public abstract class AbstractClient implements IClient {
     protected String authToken = null;
     protected String csrfToken = null;
     protected Random random;
+    private static final Logger logger = LogManager.getLogger(AbstractClient.class);
 
     public AbstractClient(IConfig config) {
         this.config = config;
@@ -56,6 +59,8 @@ public abstract class AbstractClient implements IClient {
     }
 
     protected IResponse execute(HttpUriRequest req) throws ClientException {
+        logger.info("Executing " + req.getMethod() + " request to " + req.getURI());
+
         // Need to login?
         if (!req.getURI().toString().toLowerCase().contains("auth")) {
             if (authToken == null || csrfToken == null) {
