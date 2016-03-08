@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import request.IRequest;
 import request.Request;
 import response.IResponse;
-import response.JsonElement;
 import response.Response;
 import response.ResponseStatus;
 

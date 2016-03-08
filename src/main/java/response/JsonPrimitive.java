@@ -70,10 +70,12 @@ public class JsonPrimitive {
         return p.getAsCharacter();
     }
 
+    @Override
     public int hashCode() {
         return p.hashCode();
     }
 
+    @Override
     public boolean equals(Object obj) {
         return p.equals(obj);
     }

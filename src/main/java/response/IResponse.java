@@ -16,8 +16,10 @@ public interface IResponse {
 
     JsonObject getAsJsonObject(String memberName);
 
+    @Override
     boolean equals(Object o);
 
+    @Override
     int hashCode();
 
     public String getCsrfToken();

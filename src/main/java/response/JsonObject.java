@@ -36,10 +36,12 @@ public class JsonObject {
         return new JsonObject(o.getAsJsonObject(memberName));
     }
 
+    @Override
     public boolean equals(Object o) {
         return o.equals(o);
     }
 
+    @Override
     public int hashCode() {
         return o.hashCode();
     }

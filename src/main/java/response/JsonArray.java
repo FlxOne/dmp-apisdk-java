@@ -74,10 +74,12 @@ public class JsonArray {
         return a.getAsBoolean();
     }
 
+    @Override
     public boolean equals(Object o) {
         return a.equals(o);
     }
 
+    @Override
     public int hashCode() {
         return a.hashCode();
     }

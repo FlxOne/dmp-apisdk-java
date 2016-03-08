@@ -64,14 +64,17 @@ public abstract class AbstractResponse implements IResponse {
         return new JsonObject(getResponseObject().getAsJsonObject(memberName));
     }
 
+    @Override
     public boolean equals(Object o) {
         return this.getResponseObject().equals(o);
     }
 
+    @Override
     public int hashCode() {
         return this.getResponseObject().hashCode();
     }
 
+    @Override
     public String toString() {
         return getResponseObject().toString();
     }
