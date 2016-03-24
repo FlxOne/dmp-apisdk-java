@@ -11,7 +11,7 @@ This library is a work in progress and not yet fully implemented.
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
-    </repositories>
+</repositories>
 ```
 
 ```
