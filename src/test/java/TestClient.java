@@ -1,12 +1,12 @@
-import client.Client;
-import client.ClientException;
-import client.IClient;
-import config.Config;
-import config.IConfig;
+import com.teradata.dmp.apisdk.client.Client;
+import com.teradata.dmp.apisdk.client.ClientException;
+import com.teradata.dmp.apisdk.client.IClient;
+import com.teradata.dmp.apisdk.config.Config;
+import com.teradata.dmp.apisdk.config.IConfig;
 import org.junit.Test;
-import request.IRequest;
-import request.Request;
-import response.IResponse;
+import com.teradata.dmp.apisdk.request.IRequest;
+import com.teradata.dmp.apisdk.request.Request;
+import com.teradata.dmp.apisdk.response.IResponse;
 
 import static junit.framework.TestCase.assertTrue;
 
