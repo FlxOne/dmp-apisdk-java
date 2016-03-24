@@ -1,9 +1,11 @@
 package client;
 
 import config.IConfig;
+import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -16,7 +18,9 @@ import response.Response;
 import response.ResponseStatus;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Random;
 
@@ -33,15 +37,6 @@ public abstract class AbstractClient implements IClient {
         this.config = config;
         this.client = HttpClients.createDefault();
         this.random = new Random();
-    }
-
-    public IResponse get(IRequest request) throws ClientException {
-        try {
-            HttpGet r = new HttpGet(this.getURIBuilderForRequest(request).build());
-            return execute(r);
-        } catch (Exception e) {
-            throw new ClientException(e);
-        }
     }
 
     protected boolean authenticate() throws ClientException {
@@ -115,10 +110,19 @@ public abstract class AbstractClient implements IClient {
         return resp;
     }
 
+    public IResponse get(IRequest request) throws ClientException {
+        try {
+            HttpGet r = new HttpGet(this.getURIBuilderForRequest(request).build());
+            return execute(r);
+        } catch (Exception e) {
+            throw new ClientException(e);
+        }
+    }
+
     public IResponse put(IRequest request) throws ClientException {
         try {
-            HttpPut r = new HttpPut(this.getURIBuilderForRequest(request).build());
-            // @todo body, not use uri builder above
+            HttpPut r = new HttpPut(this.config.getEndpoint() + "/" + request.getService());
+            r.setEntity(createPostBody(request));
             return execute(r);
         } catch (Exception e) {
             throw new ClientException(e);
@@ -128,7 +132,6 @@ public abstract class AbstractClient implements IClient {
     public IResponse delete(IRequest request) throws ClientException {
         try {
             HttpDelete r = new HttpDelete(this.getURIBuilderForRequest(request).build());
-            // @todo body, not use uri builder above
             return execute(r);
         } catch (Exception e) {
             throw new ClientException(e);
@@ -137,8 +140,8 @@ public abstract class AbstractClient implements IClient {
 
     public IResponse post(IRequest request) throws ClientException {
         try {
-            HttpPost r = new HttpPost(this.getURIBuilderForRequest(request).build());
-            // @todo body, not use uri builder above
+            HttpPost r = new HttpPost(this.config.getEndpoint() + "/" + request.getService());
+            r.setEntity(createPostBody(request));
             return execute(r);
         } catch (Exception e) {
             throw new ClientException(e);
@@ -147,14 +150,27 @@ public abstract class AbstractClient implements IClient {
 
     protected URIBuilder getURIBuilderForRequest(IRequest request) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(this.config.getEndpoint() + "/" + request.getService());
-        for(Map.Entry<String, String> entry : request.getParameters().entrySet()) {
+        for (Map.Entry<String, String> entry : request.getParameters().entrySet()) {
             uriBuilder.setParameter(entry.getKey(), entry.getValue());
         }
         return uriBuilder;
     }
 
+    protected HttpEntity createPostBody(IRequest request) throws UnsupportedEncodingException {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : request.getParameters().entrySet()) {
+            builder.append(entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8") + "&");
+        }
+        if (builder.length() > 0) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        String params = builder.toString();
+        HttpEntity entity = new ByteArrayEntity(params.getBytes("UTF-8"));
+        return entity;
+    }
+
     protected String closeableHttpResponseToString(CloseableHttpResponse cHttpResp) throws
-        IOException, ParseException {
+            IOException, ParseException {
         return EntityUtils.toString(cHttpResp.getEntity());
     }
 }
