@@ -37,11 +37,7 @@ public abstract class AbstractResponse implements IResponse {
     }
 
     public Set<Map.Entry<String, JsonElement>> entrySet() {
-        Set<Map.Entry<String, JsonElement>> es = new HashSet<Map.Entry<String, JsonElement>>();
-        for (Map.Entry<String, com.google.gson.JsonElement> kv : this.getResponseObject().entrySet()) {
-            es.add(new AbstractMap.SimpleImmutableEntry<String, JsonElement>(kv.getKey(), (JsonElement)kv.getValue()));
-        }
-        return es;
+        return JsonObject.toEntrySet(getResponseObject());
     }
 
     public boolean has(String memberName) {
@@ -49,7 +45,20 @@ public abstract class AbstractResponse implements IResponse {
     }
 
     public JsonElement get(String memberName) {
-        return (JsonElement)getResponseObject().get(memberName);
+        com.google.gson.JsonElement elm = getResponseObject().get(memberName);
+        JsonElement wrappedElm;
+        if (elm instanceof com.google.gson.JsonObject) {
+            wrappedElm = new JsonObject((com.google.gson.JsonObject)elm);
+        } else if (elm instanceof com.google.gson.JsonPrimitive) {
+            wrappedElm = new JsonPrimitive((com.google.gson.JsonPrimitive)elm);
+        } else if (elm instanceof com.google.gson.JsonArray) {
+            wrappedElm = new JsonArray((com.google.gson.JsonArray)elm);
+        } else if (elm instanceof com.google.gson.JsonNull) {
+            wrappedElm = JsonNull.INSTANCE;
+        } else {
+            throw new RuntimeException("Type not supported: " + elm.getClass().getName());
+        }
+        return wrappedElm;
     }
 
     public JsonPrimitive getAsJsonPrimitive(String memberName) {

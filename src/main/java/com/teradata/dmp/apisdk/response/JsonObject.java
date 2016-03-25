@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class JsonObject {
+public class JsonObject extends JsonElement {
     private final com.google.gson.JsonObject o;
 
     public JsonObject(com.google.gson.JsonObject o) {
@@ -13,9 +13,28 @@ public class JsonObject {
     }
 
     public Set<Map.Entry<String, JsonElement>> entrySet() {
+        return toEntrySet(this.o);
+    }
+
+    public static Set<Map.Entry<String, JsonElement>> toEntrySet(com.google.gson.JsonObject obj) {
         Set<Map.Entry<String, JsonElement>> es = new HashSet<Map.Entry<String, JsonElement>>();
-        for (Map.Entry<String, com.google.gson.JsonElement> kv : this.o.entrySet()) {
-            es.add(new AbstractMap.SimpleImmutableEntry<String, JsonElement>(kv.getKey(), (JsonElement)kv.getValue()));
+        for (Map.Entry<String, com.google.gson.JsonElement> kv : obj.entrySet()) {
+            com.google.gson.JsonElement elm = kv.getValue();
+            JsonElement wrappedElm;
+
+            if (elm instanceof com.google.gson.JsonObject) {
+                wrappedElm = new JsonObject((com.google.gson.JsonObject)elm);
+            } else if (elm instanceof com.google.gson.JsonPrimitive) {
+                wrappedElm = new JsonPrimitive((com.google.gson.JsonPrimitive)elm);
+            } else if (elm instanceof com.google.gson.JsonArray) {
+                wrappedElm = new JsonArray((com.google.gson.JsonArray)elm);
+            } else if (elm instanceof com.google.gson.JsonNull) {
+                wrappedElm = JsonNull.INSTANCE;
+            } else {
+                throw new RuntimeException("Type not supported: " + elm.getClass().getName());
+            }
+
+            es.add(new AbstractMap.SimpleImmutableEntry<String, JsonElement>(kv.getKey(), wrappedElm));
         }
         return es;
     }
@@ -44,5 +63,10 @@ public class JsonObject {
     @Override
     public int hashCode() {
         return o.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return o.toString();
     }
 }
