@@ -6,6 +6,7 @@ com/teradata/dmp/apisdk/request/IRequest.class
 com/teradata/dmp/apisdk/request/Request.class
 com/teradata/dmp/apisdk/response/IResponse.class
 com/teradata/dmp/apisdk/response/JsonPrimitive.class
+com/teradata/dmp/apisdk/response/JsonNull.class
 com/teradata/dmp/apisdk/request/AbstractRequest.class
 com/teradata/dmp/apisdk/response/JsonArray.class
 com/teradata/dmp/apisdk/response/AbstractResponse.class

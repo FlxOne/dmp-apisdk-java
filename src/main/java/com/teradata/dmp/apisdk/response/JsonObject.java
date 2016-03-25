@@ -39,6 +39,23 @@ public class JsonObject extends JsonElement {
         return es;
     }
 
+    public JsonElement get(String memberName) {
+        com.google.gson.JsonElement elm = o.get(memberName);
+        JsonElement wrappedElm;
+        if (elm instanceof com.google.gson.JsonObject) {
+            wrappedElm = new JsonObject((com.google.gson.JsonObject)elm);
+        } else if (elm instanceof com.google.gson.JsonPrimitive) {
+            wrappedElm = new JsonPrimitive((com.google.gson.JsonPrimitive)elm);
+        } else if (elm instanceof com.google.gson.JsonArray) {
+            wrappedElm = new JsonArray((com.google.gson.JsonArray)elm);
+        } else if (elm instanceof com.google.gson.JsonNull) {
+            wrappedElm = JsonNull.INSTANCE;
+        } else {
+            throw new RuntimeException("Type not supported: " + elm.getClass().getName());
+        }
+        return wrappedElm;
+    }
+
     public boolean has(String memberName) {
         return o.has(memberName);
     }
