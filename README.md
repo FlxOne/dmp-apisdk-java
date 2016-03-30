@@ -32,7 +32,7 @@ exclude dmp-apisdk-java-mvn-repo from the m2repo mirror by changing the ~/.m2/se
 ```
         ...
         <mirror>
-        <!--This sends everything else to m2repo.muc.ecircle.de -->
+        <!--This sends everything else to m2repo.your-domain.com -->
                 <id>m2repo</id>
                 <mirrorOf>*,!grails-all,!dmp-apisdk-java-mvn-repo</mirrorOf>
                 <url>https://m2repo.your-domain.com/repo/content/groups/public</url>
