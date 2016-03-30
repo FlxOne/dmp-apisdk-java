@@ -26,7 +26,7 @@ This library is a work in progress and not yet fully implemented.
 
 If ```mvn install``` finishes with BUILD FAILURE and the following error
 ```
-[ERROR] Failed to execute goal on project [...]: Could not find artifact com.teradata.dmp:apisdk:jar:1.0-SNAPSHOT in m2repo (https://m2repo.muc.ecircle.de/repo/content/groups/public) -> [Help 1]
+[ERROR] Failed to execute goal on project [...]: Could not find artifact com.teradata.dmp:apisdk:jar:1.0-SNAPSHOT in m2repo (https://m2repo.your-domain.com/repo/content/groups/public) -> [Help 1]
 ```
 exclude dmp-apisdk-java-mvn-repo from the m2repo mirror by changing the ~/.m2/settings.xml file, e.g.:
 ```
@@ -34,8 +34,8 @@ exclude dmp-apisdk-java-mvn-repo from the m2repo mirror by changing the ~/.m2/se
         <mirror>
         <!--This sends everything else to m2repo.muc.ecircle.de -->
                 <id>m2repo</id>
-                <mirrorOf>*,!grails-all,!cloudera-cdh,!dmp-apisdk-java-mvn-repo</mirrorOf>
-                <url>https://m2repo.muc.ecircle.de/repo/content/groups/public</url>
+                <mirrorOf>*,!grails-all,!dmp-apisdk-java-mvn-repo</mirrorOf>
+                <url>https://m2repo.your-domain.com/repo/content/groups/public</url>
         </mirror>
         ...
 ```
