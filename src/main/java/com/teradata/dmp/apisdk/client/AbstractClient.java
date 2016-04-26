@@ -3,6 +3,7 @@ package com.teradata.dmp.apisdk.client;
 import com.teradata.dmp.apisdk.config.IConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
@@ -53,25 +54,29 @@ public abstract class AbstractClient implements IClient {
     }
 
     protected IResponse execute(HttpUriRequest req) throws ClientException {
-        logger.info("Executing " + req.getMethod() + " request to " + req.getURI());
-
         // Need to login?
-        if (!req.getURI().toString().toLowerCase().contains("auth")) {
-            if (authToken == null || csrfToken == null) {
+        if (!req.getURI().toString().toLowerCase().contains("/auth")) {
+            if (authToken == null || csrfToken == null || authToken.isEmpty() || csrfToken.isEmpty()) {
                 if (!authenticate()) {
                     throw new ClientException(new Exception("Failed to authenticate"));
                 }
             }
         }
 
-        // Headers
-        req.addHeader("X-Auth", authToken);
-        req.addHeader("X-CSRF", csrfToken);
+        // Set headers (except when doing the auth call)
+        if (req.getURI().toString().toLowerCase().contains("/auth")) {
+            req.addHeader("X-Auth", authToken);
+            req.addHeader("X-CSRF", csrfToken);
+        }
+
+        // Log request
+        logger.info("Executing " + req.getMethod() + " request to " + req.getURI());
 
         // Execute
-        CloseableHttpResponse cHttpResp;
+        CloseableHttpResponse cHttpResp = null;
         Response resp = null;
         for (int i = 0; i < config.getMaxRetries(); i++) {
+            logger.debug("Starting attempt " + i);
             try {
                 // Execute request
                 cHttpResp = this.client.execute(req);
@@ -79,6 +84,10 @@ public abstract class AbstractClient implements IClient {
                 // Status
                 int status = cHttpResp.getStatusLine().getStatusCode();
                 if (status == 401) {
+                    // Consume so it doesn't hang
+                    EntityUtils.consumeQuietly(cHttpResp.getEntity());
+
+                    // Re-auth
                     authenticate();
 
                     // Try again
@@ -93,11 +102,30 @@ public abstract class AbstractClient implements IClient {
                     // OK, stop retrying
                     break;
                 }
+            } catch (HttpResponseException httpRespX) {
+                // Consume so it doesn't hang
+                if (cHttpResp != null) {
+                    EntityUtils.consumeQuietly(cHttpResp.getEntity());
+                }
+
+                // Log error
+                logger.error("Failed request response type", httpRespX);
+
+                // Session expired?
+                if (httpRespX.getStatusCode() == 401) {
+                    // Re-auth
+                    authenticate();
+                }
+
+                // Next iteration of for loop will try again
             } catch (Exception x) {
+                // Consume so it doesn't hang
+                if (cHttpResp != null) {
+                    EntityUtils.consumeQuietly(cHttpResp.getEntity());
+                }
+
                 // Handle + exponential backoff
-                // @todo check if session dead
-                System.err.println(x);
-                x.printStackTrace();
+                logger.error("Failed request unknown", x);
 
                 // Exponential backoff with jitter
                 try {
@@ -146,6 +174,14 @@ public abstract class AbstractClient implements IClient {
         } catch (Exception e) {
             throw new ClientException(e);
         }
+    }
+
+    public void resetAuthToken() {
+        authToken = "";
+    }
+
+    public void setAuthToken(String v) {
+        authToken = v;
     }
 
     protected URIBuilder getURIBuilderForRequest(IRequest request) throws URISyntaxException {

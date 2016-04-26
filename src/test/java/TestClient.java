@@ -1,3 +1,4 @@
+import com.teradata.dmp.apisdk.client.AbstractClient;
 import com.teradata.dmp.apisdk.client.Client;
 import com.teradata.dmp.apisdk.client.ClientException;
 import com.teradata.dmp.apisdk.client.IClient;
@@ -33,8 +34,28 @@ public class TestClient {
         // Execute
         IResponse resp = client.get(req);
 
-
         // Validate ID
         assertTrue(resp.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
+
+        // Access underlying methods
+        AbstractClient aClient = (AbstractClient)client;
+
+        // Expire session
+        aClient.resetAuthToken();
+
+        // Execute again
+        IResponse resp2 = aClient.get(req);
+
+        // Validate ID
+        assertTrue(resp2.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
+
+        // Test invalid session ID
+        aClient.setAuthToken("asdf");
+
+        // Execute again
+        IResponse resp3 = aClient.get(req);
+
+        // Validate ID
+        assertTrue(resp3.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
     }
 }
