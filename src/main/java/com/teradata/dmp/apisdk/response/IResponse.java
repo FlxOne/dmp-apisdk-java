@@ -1,4 +1,4 @@
-package response;
+package com.teradata.dmp.apisdk.response;
 
 import java.util.Map;
 import java.util.Set;

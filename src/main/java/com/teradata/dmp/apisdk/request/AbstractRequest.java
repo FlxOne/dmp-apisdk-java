@@ -1,4 +1,4 @@
-package request;
+package com.teradata.dmp.apisdk.request;
 
 import java.util.HashMap;
 

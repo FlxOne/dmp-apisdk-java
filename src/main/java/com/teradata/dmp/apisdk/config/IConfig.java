@@ -1,4 +1,4 @@
-package config;
+package com.teradata.dmp.apisdk.config;
 
 public interface  IConfig {
     String getEndpoint();

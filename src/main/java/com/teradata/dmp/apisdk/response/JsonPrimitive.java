@@ -1,9 +1,9 @@
-package response;
+package com.teradata.dmp.apisdk.response;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class JsonPrimitive {
+public class JsonPrimitive extends JsonElement {
     private final com.google.gson.JsonPrimitive p;
 
     public JsonPrimitive(com.google.gson.JsonPrimitive p) {
@@ -56,6 +56,11 @@ public class JsonPrimitive {
 
     public short getAsShort() {
         return p.getAsShort();
+    }
+
+    @Override
+    public String toString() {
+        return p.toString();
     }
 
     public int getAsInt() {

@@ -1,4 +1,4 @@
-package config;
+package com.teradata.dmp.apisdk.config;
 
 public class Config extends AbstractConfig implements IConfig {
     public static IConfig getDefault() {

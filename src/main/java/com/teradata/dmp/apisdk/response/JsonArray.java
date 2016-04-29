@@ -1,4 +1,6 @@
-package response;
+package com.teradata.dmp.apisdk.response;
+
+import com.google.gson.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -6,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class JsonArray {
+public class JsonArray extends JsonElement implements Iterable<JsonElement> {
     private final com.google.gson.JsonArray a;
 
     public JsonArray(com.google.gson.JsonArray a) {
@@ -21,7 +23,18 @@ public class JsonArray {
         Iterator<com.google.gson.JsonElement> it = a.iterator();
         List<JsonElement> list = new ArrayList<JsonElement>();
         while (it.hasNext()) {
-            list.add((JsonElement)it.next());
+            com.google.gson.JsonElement elm = it.next();
+            if (elm instanceof com.google.gson.JsonObject) {
+                list.add(new JsonObject((com.google.gson.JsonObject)elm));
+            } else if (elm instanceof com.google.gson.JsonPrimitive) {
+                list.add(new JsonPrimitive((com.google.gson.JsonPrimitive)elm));
+            } else if (elm instanceof com.google.gson.JsonArray) {
+                list.add(new JsonArray((com.google.gson.JsonArray)elm));
+            } else if (elm instanceof com.google.gson.JsonNull) {
+                list.add(JsonNull.INSTANCE);
+            } else {
+                throw new RuntimeException("Type not supported: " + elm.getClass().getName());
+            }
         }
         return list.iterator();
     }
@@ -82,5 +95,9 @@ public class JsonArray {
     @Override
     public int hashCode() {
         return a.hashCode();
+    }
+
+    public String toString() {
+        return a.toString();
     }
 }

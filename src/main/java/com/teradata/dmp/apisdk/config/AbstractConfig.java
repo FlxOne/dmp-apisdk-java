@@ -1,4 +1,4 @@
-package config;
+package com.teradata.dmp.apisdk.config;
 
 public class AbstractConfig implements IConfig {
     protected String endpoint;

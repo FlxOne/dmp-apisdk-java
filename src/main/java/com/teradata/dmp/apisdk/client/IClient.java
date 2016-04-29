@@ -1,7 +1,7 @@
-package client;
+package com.teradata.dmp.apisdk.client;
 
-import request.IRequest;
-import response.IResponse;
+import com.teradata.dmp.apisdk.request.IRequest;
+import com.teradata.dmp.apisdk.response.IResponse;
 
 public interface IClient {
     IResponse get(IRequest request) throws ClientException;

@@ -1,4 +1,4 @@
-package response;
+package com.teradata.dmp.apisdk.response;
 
 public enum ResponseStatus {
     OK,
