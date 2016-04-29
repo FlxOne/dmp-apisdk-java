@@ -4,10 +4,10 @@ import com.teradata.dmp.apisdk.client.ClientException;
 import com.teradata.dmp.apisdk.client.IClient;
 import com.teradata.dmp.apisdk.config.Config;
 import com.teradata.dmp.apisdk.config.IConfig;
-import org.junit.Test;
 import com.teradata.dmp.apisdk.request.IRequest;
 import com.teradata.dmp.apisdk.request.Request;
 import com.teradata.dmp.apisdk.response.IResponse;
+import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -44,7 +44,8 @@ public class TestClient {
         aClient.resetAuthToken();
 
         // Execute again
-        IResponse resp2 = aClient.get(req);
+        IRequest req2 = new Request("user/current");
+        IResponse resp2 = aClient.get(req2);
 
         // Validate ID
         assertTrue(resp2.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
@@ -53,7 +54,8 @@ public class TestClient {
         aClient.setAuthToken("asdf");
 
         // Execute again
-        IResponse resp3 = aClient.get(req);
+        IRequest req3 = new Request("user/current");
+        IResponse resp3 = aClient.get(req3);
 
         // Validate ID
         assertTrue(resp3.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);

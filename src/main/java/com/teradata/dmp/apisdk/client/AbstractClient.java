@@ -1,5 +1,6 @@
 package com.teradata.dmp.apisdk.client;
 
+import com.google.gson.Gson;
 import com.teradata.dmp.apisdk.config.IConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
@@ -50,6 +51,7 @@ public abstract class AbstractClient implements IClient {
         }
         authToken = resp.getAsJsonPrimitive("token").getAsString();
         csrfToken = resp.getCsrfToken();
+        logger.info("Authenticated " + authToken + " " + csrfToken);
         return true;
     }
 
@@ -57,16 +59,11 @@ public abstract class AbstractClient implements IClient {
         // Need to login?
         if (!req.getURI().toString().toLowerCase().contains("/auth")) {
             if (authToken == null || csrfToken == null || authToken.isEmpty() || csrfToken.isEmpty()) {
+                logger.info("Need to authenticate");
                 if (!authenticate()) {
                     throw new ClientException(new Exception("Failed to authenticate"));
                 }
             }
-        }
-
-        // Set headers (except when doing the auth call)
-        if (req.getURI().toString().toLowerCase().contains("/auth")) {
-            req.addHeader("X-Auth", authToken);
-            req.addHeader("X-CSRF", csrfToken);
         }
 
         // Log request
@@ -78,12 +75,23 @@ public abstract class AbstractClient implements IClient {
         for (int i = 0; i < config.getMaxRetries(); i++) {
             logger.debug("Starting attempt " + i);
             try {
+                // Set headers (except when doing the auth call)
+                if (!req.getURI().toString().toLowerCase().contains("/auth")) {
+                    logger.debug("Adding auth headers");
+                    req.setHeader("X-Auth", authToken);
+                    req.setHeader("X-CSRF", csrfToken);
+                }
+
                 // Execute request
+//                System.out.println(new Gson().toJson(req.getAllHeaders()));
                 cHttpResp = this.client.execute(req);
 
                 // Status
                 int status = cHttpResp.getStatusLine().getStatusCode();
                 if (status == 401) {
+//                    System.out.println(req);
+                    logger.warn("Received 401, doing auth");
+
                     // Consume so it doesn't hang
                     EntityUtils.consumeQuietly(cHttpResp.getEntity());
 
