@@ -62,3 +62,4 @@ src/main/java/ExampleApiRequest.java
 # OS X Directory index files
 .DS_Store
 
+target/**
