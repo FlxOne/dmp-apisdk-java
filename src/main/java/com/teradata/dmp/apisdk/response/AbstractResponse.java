@@ -1,6 +1,8 @@
 package com.teradata.dmp.apisdk.response;
 
 import com.google.gson.JsonParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.AbstractMap;
 import java.util.HashSet;
@@ -10,6 +12,7 @@ import java.util.Set;
 public abstract class AbstractResponse implements IResponse {
     protected static final JsonParser jsonParser = new JsonParser();
     private final com.google.gson.JsonObject jsonOuterResponseObject;
+    private static final Logger logger = LogManager.getLogger(AbstractResponse.class);
 
     public AbstractResponse(String json) {
         this.jsonOuterResponseObject = jsonParser.parse(json).getAsJsonObject();
@@ -19,6 +22,9 @@ public abstract class AbstractResponse implements IResponse {
         try {
             if (getResponseObject().getAsJsonPrimitive("status").getAsString().equals("OK")) {
                 return ResponseStatus.OK;
+            }
+            if (getResponseObject().has("error")) {
+                logger.error("Response error: " + getResponseObject().getAsJsonPrimitive("error").getAsString());
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
