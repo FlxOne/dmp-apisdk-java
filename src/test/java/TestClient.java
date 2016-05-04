@@ -60,4 +60,35 @@ public class TestClient {
         // Validate ID
         assertTrue(resp3.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
     }
+
+    @Test
+    public void testClientHMACOption() throws ClientException {
+        // Conf
+        IConfig conf = Config.getDefault();
+        conf.setHMACEnabled(true);
+
+        // Credentials are read from system env, put in ~/.bashrc (e.g. export DMP_USERNAME=test )
+        // in order to take effect you might need to reload env, restart editor or reboot machine
+        conf.setCredentials(System.getenv("DMP_USERNAME"), System.getenv("DMP_PASSWORD"));
+        String endpoint = System.getenv("DMP_ENDPOINT");
+
+        conf.setHMACSecret(System.getenv("DMP_HMAC_SECRET"));
+
+        if (endpoint != null) {
+            conf.setEndpoint(endpoint);
+        }
+
+        // Client
+        IClient client = new Client(conf);
+
+        // Request
+        IRequest req = new Request("user/current");
+
+        // Execute
+        IResponse resp = client.get(req);
+
+        // Validate ID
+        assertTrue(resp.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
+    }
+
 }

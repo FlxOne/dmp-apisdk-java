@@ -5,6 +5,7 @@ public class Config extends AbstractConfig implements IConfig {
         IConfig conf = new Config();
         conf.setEndpoint("https://platform.flxone.com/api/v2");
         conf.setMaxRetries(5);
+        conf.setHMACEnabled(false);
         return conf;
     }
 }

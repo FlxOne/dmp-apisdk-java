@@ -1,7 +1,8 @@
 package com.teradata.dmp.apisdk.client;
 
-import com.google.gson.Gson;
 import com.teradata.dmp.apisdk.config.IConfig;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpResponseException;
@@ -19,10 +20,14 @@ import com.teradata.dmp.apisdk.response.IResponse;
 import com.teradata.dmp.apisdk.response.Response;
 import com.teradata.dmp.apisdk.response.ResponseStatus;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Random;
 
@@ -57,7 +62,7 @@ public abstract class AbstractClient implements IClient {
 
     protected IResponse execute(HttpUriRequest req) throws ClientException {
         // Need to login?
-        if (!req.getURI().toString().toLowerCase().contains("/auth")) {
+        if (!isAuthRequest(req)) {
             if (authToken == null || csrfToken == null || authToken.isEmpty() || csrfToken.isEmpty()) {
                 logger.info("Need to authenticate");
                 if (!authenticate()) {
@@ -72,6 +77,7 @@ public abstract class AbstractClient implements IClient {
         // Execute
         CloseableHttpResponse cHttpResp = null;
         Response resp = null;
+        String responseStr = "";
         for (int i = 0; i < config.getMaxRetries(); i++) {
             logger.debug("Starting attempt " + i);
             try {
@@ -103,7 +109,8 @@ public abstract class AbstractClient implements IClient {
                 }
 
                 // Parse response
-                resp = new Response(closeableHttpResponseToString(cHttpResp));
+                responseStr = closeableHttpResponseToString(cHttpResp);
+                resp = new Response(responseStr);
 
                 // Valid?
                 if (resp.getStatus().equals(ResponseStatus.OK)) {
@@ -143,7 +150,50 @@ public abstract class AbstractClient implements IClient {
                 }
             }
         }
+
+        // got the response, do we need to check for HMAC? only if not auth, and configured in config.
+        if (resp != null && cHttpResp != null && !isAuthRequest(req)) {
+            if(config.isHMACEnabled()) {
+                validateHMAC(cHttpResp, responseStr);
+            }
+        }
+
         return resp;
+    }
+
+    private boolean isAuthRequest(HttpUriRequest req) {
+        return req.getURI().toString().toLowerCase().contains("/auth");
+    }
+
+    private void validateHMAC(CloseableHttpResponse cHttpResp, String responseStr)
+        throws ClientException {
+        Header xHMAC = cHttpResp.getFirstHeader("X-HMAC");
+        if (xHMAC == null){
+            logger.error("HMAC validation not passed, no X-HMAC header present");
+            throw new ClientException(new HttpResponseException(401, "HMAC header not"
+                + " present but required to be checked"));
+        }
+        String receivedHMAC = xHMAC.getValue();
+        String responseHMAC = "";
+        try {
+            responseHMAC = encodeResponseHmac(responseStr, config.getHMACSecret());
+        } catch (Exception e) {
+            logger.error("Error encoding HMAC from responseSTR", e);
+            throw new ClientException(e);
+        }
+
+        if(!responseHMAC.equals(receivedHMAC)) {
+            throw new ClientException(new HttpResponseException(401, "HMAC header received "
+                + "is not equal the encoded response"));
+        }
+    }
+
+    private String encodeResponseHmac(String data, String HMACSecret) throws NoSuchAlgorithmException,
+        InvalidKeyException, UnsupportedEncodingException {
+        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secret_key = new SecretKeySpec(HMACSecret.getBytes("UTF-8"), "HmacSHA256");
+        sha256_HMAC.init(secret_key);
+        return Hex.encodeHexString(sha256_HMAC.doFinal(data.getBytes("UTF-8")));
     }
 
     public IResponse get(IRequest request) throws ClientException {

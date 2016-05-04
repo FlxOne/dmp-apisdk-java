@@ -5,6 +5,8 @@ public class AbstractConfig implements IConfig {
     protected String username;
     protected String password;
     protected int maxRetries;
+    protected boolean isHMACEnabled;
+    protected String HMACSecret;
 
     public String getEndpoint() {
         return this.endpoint;
@@ -39,5 +41,21 @@ public class AbstractConfig implements IConfig {
 
     protected void setUsername(String username) {
         this.username = username;
+    }
+
+    public boolean isHMACEnabled() {
+        return isHMACEnabled;
+    }
+
+    public String getHMACSecret() {
+        return HMACSecret;
+    }
+
+    public void setHMACSecret(String HMACSecret) {
+        this.HMACSecret = HMACSecret;
+    }
+
+    public void setHMACEnabled(boolean HMACEnabled) {
+        isHMACEnabled = HMACEnabled;
     }
 }
