@@ -55,15 +55,15 @@ public class Request {
     }
 
     public void setCustomerId(int customerId) {
-        defaults.put("m", customerId);
+        defaults.put(Dimensions.FLXONE_CUSTOMER_ID, customerId);
     }
 
     public void setPixelId(int pixelId) {
-        defaults.put("id", pixelId);
+        defaults.put(Dimensions.PIXEL_ID, pixelId);
     }
 
     public void send() {
-        defaults.put("data", new Gson().toJson(this.getData()));
+        defaults.put(Dimensions.EXTERNAL_DATA, new Gson().toJson(this.getData()));
 
         this.getDefaults().entrySet().stream().forEach((entry) -> {
             builder.addParameter(entry.getKey(), entry.getValue().toString());
