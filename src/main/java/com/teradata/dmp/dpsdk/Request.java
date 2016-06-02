@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
-import java.util.Map;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
@@ -15,8 +14,8 @@ import org.apache.http.client.utils.URIBuilder;
  */
 public class Request {
 
-    private final HashMap<String, Object> defaults = new HashMap<String, Object>();
-    private final HashMap<String, Object> data = new HashMap<String, Object>();
+    private final HashMap<String, Object> defaults = new HashMap<>();
+    private final HashMap<String, Object> data = new HashMap<>();
     private final URIBuilder builder = new URIBuilder();
 
     public void setData(String key, JsonObject jsonObject) {
@@ -66,9 +65,9 @@ public class Request {
     public void send() {
         defaults.put("data", new Gson().toJson(this.getData()));
 
-        for (Map.Entry<String, Object> entry : this.getDefaults().entrySet()) {
+        this.getDefaults().entrySet().stream().forEach((entry) -> {
             builder.addParameter(entry.getKey(), entry.getValue().toString());
-        }
+        });
 
         System.out.println(builder.toString());
     }
