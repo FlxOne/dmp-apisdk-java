@@ -1,6 +1,5 @@
 package com.teradata.dmp.dpsdk;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
@@ -19,27 +18,28 @@ import org.apache.http.client.utils.URIBuilder;
 public class Example {
 
     public static void main(String args[]) {
+        Client client = new Client();
+        client.setScheme("http");
+        client.setHost("go.flx1.com");
+        client.setPath("/dp");
+
         Request request = new Request();
-        request.setPixelId(1);
-        request.setCustomerId(11);
-        request.setScheme("http");
-        request.setHost("go.flx1.com");
-        request.setPath("/dp");
-        
+
+        // Default properties
+        request.set(Dimensions.PIXEL_ID, "1");
+        request.set(Dimensions.FLXONE_CUSTOMER_ID, "11");
+        request.set(Dimensions.CAMPAIGN_ID, "123");
+
+        // Custom properties
         request.setData("gender", "male");
 
+        // Custom property as json object
         JsonObject user = new JsonObject();
         user.addProperty("id", 1);
         user.addProperty("company", "Teradata");
         request.setData("user", user);
 
-        JsonArray users = new JsonArray();
-        users.add(user);
-        request.setData("users", users);
-
-        request.setData("amount", 2);
-
-        request.send();
+        client.execute(request);
     }
 
     public static void test() {
@@ -78,7 +78,7 @@ public class Example {
                     public Response onCompleted(Response response) throws Exception {
                         synchronized (runningCounter) {
                             runningCounter.decrementAndGet();
-                            runningCounter.notify(); // Done one
+                            runningCounter.notify();
                         }
 
                         return response;
