@@ -39,64 +39,11 @@ public class Example {
         user.addProperty("company", "Teradata");
         request.setData("user", user);
 
-        client.execute(request);
-    }
-
-    public static void test() {
-        try {
-            URIBuilder builder = new URIBuilder();
-            builder.setScheme("https").setHost("go.flx1.com").setPath("/dp");
-            builder.setParameter("_check", "1");
-            builder.setParameter("_nr", "1");
-            builder.setParameter("t", "js");
-            builder.setParameter("m", "11");
-
-            AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
-            final AtomicLong runningCounter = new AtomicLong();
-
-            try {
-                builder.setParameter("id", "1");
-                builder.setParameter("uuid", "123-456");
-                builder.setParameter("data", "{\"total_exposure_time\": 123}");
-
-                URI url = builder.build();
-
-                long running = runningCounter.incrementAndGet();
-                if (running > 100) {
-                    try {
-                        synchronized (runningCounter) {
-                            runningCounter.wait();
-                        }
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
-
-                asyncHttpClient.prepareGet(url.toString()).execute(new AsyncCompletionHandler<Response>() {
-
-                    @Override
-                    public Response onCompleted(Response response) throws Exception {
-                        synchronized (runningCounter) {
-                            runningCounter.decrementAndGet();
-                            runningCounter.notify();
-                        }
-
-                        return response;
-                    }
-
-                    @Override
-                    public void onThrowable(Throwable t) {
-                        System.out.println("onThrowable: " + t.getMessage());
-                    }
-                });
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-
-            // Close when done
-            asyncHttpClient.closeAsynchronously();
-        } catch (Exception ex) {
-            Logger.getLogger(Example.class.getName()).log(Level.SEVERE, null, ex);
+        for (int i = 0; i < 10; i++) {
+            client.execute(request);
         }
+        
+        client.close();
     }
+    
 }
