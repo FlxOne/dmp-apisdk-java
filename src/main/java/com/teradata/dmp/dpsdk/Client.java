@@ -32,14 +32,14 @@ public class Client {
     }
 
     public void execute(Request request) {
+        builder.clearParameters();
+
         request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getData()));
         request.getDefaults().entrySet().stream().forEach((entry) -> {
             builder.addParameter(entry.getKey(), entry.getValue().toString());
         });
 
         System.out.println(builder.toString());
-
-        // @todo: clear map?
 
         try {
             URI url = builder.build();
@@ -71,6 +71,7 @@ public class Client {
                 public void onThrowable(Throwable t) {
                     System.out.println("onThrowable: " + t.getMessage());
                 }
+
             });
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -78,7 +79,8 @@ public class Client {
     }
 
     public void close() {
-        asyncHttpClient.closeAsynchronously();
+        // @todo: below doesn't wait properly?
+        // asyncHttpClient.closeAsynchronously();
     }
 
 }

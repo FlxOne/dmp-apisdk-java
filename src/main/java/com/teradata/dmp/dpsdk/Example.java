@@ -30,19 +30,23 @@ public class Example {
         request.set(Dimensions.FLXONE_CUSTOMER_ID, "11");
         request.set(Dimensions.CAMPAIGN_ID, "123");
 
-        // Custom properties
-        request.setData("gender", "male");
-
-        // Custom property as json object
-        JsonObject user = new JsonObject();
-        user.addProperty("id", 1);
-        user.addProperty("company", "Teradata");
-        request.setData("user", user);
-
         for (int i = 0; i < 10; i++) {
+            // Clear data since we re-use the request object
+            request.clearData();
+
+            // Custom properties
+            request.setData("gender", "male");
+
+            // Custom property as json object
+            JsonObject user = new JsonObject();
+            user.addProperty("id", 1);
+            user.addProperty("company", "Teradata");
+            request.setData("user", user);
+            
+            // Execute
             client.execute(request);
         }
-        
+
         client.close();
     }
     
