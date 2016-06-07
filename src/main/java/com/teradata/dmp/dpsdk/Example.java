@@ -1,14 +1,6 @@
 package com.teradata.dmp.dpsdk;
 
 import com.google.gson.JsonObject;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
-import java.net.URI;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Example
@@ -32,16 +24,16 @@ public class Example {
 
         for (int i = 0; i < 10; i++) {
             // Clear data since we re-use the request object
-            request.clearData();
+            request.clearCustomData();
 
             // Custom properties
-            request.setData("gender", "male");
+            request.setCustomData("gender", "male");
 
             // Custom property as json object
             JsonObject user = new JsonObject();
             user.addProperty("id", 1);
             user.addProperty("company", "Teradata");
-            request.setData("user", user);
+            request.setCustomData("user", user);
             
             // Execute
             client.execute(request);

@@ -34,7 +34,7 @@ public class Client {
     public void execute(Request request) {
         builder.clearParameters();
 
-        request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getData()));
+        request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
         request.getDefaults().entrySet().stream().forEach((entry) -> {
             builder.addParameter(entry.getKey(), entry.getValue().toString());
         });

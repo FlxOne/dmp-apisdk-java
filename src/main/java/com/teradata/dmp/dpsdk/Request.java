@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class Request {
 
     private final HashMap<String, Object> defaults = new HashMap<>();
-    private final HashMap<String, Object> data = new HashMap<>();
+    private final HashMap<String, Object> customData = new HashMap<>();
 
     public void set(String key, String value) {
         defaults.put(key, value);
@@ -22,45 +22,45 @@ public class Request {
     public void remove(String key) {
         defaults.remove(key);
     }
-
-    public void setData(String key, JsonObject jsonObject) {
-        data.put(key, jsonObject);
+    
+    public void removeCustomData(String key) {
+        customData.remove(key);
     }
 
-    public void removeData(String key) {
-        data.remove(key);
+    public void setCustomData(String key, JsonObject jsonObject) {
+        customData.put(key, jsonObject);
     }
 
-    public void setData(String key, JsonArray jsonArray) {
-        data.put(key, jsonArray);
+    public void setCustomData(String key, JsonArray jsonArray) {
+        customData.put(key, jsonArray);
     }
 
-    public void setData(String key, JsonElement jsonElement) {
-        data.put(key, jsonElement);
+    public void setCustomData(String key, JsonElement jsonElement) {
+        customData.put(key, jsonElement);
     }
 
-    public void setData(String key, int integer) {
-        data.put(key, integer);
+    public void setCustomData(String key, int integer) {
+        customData.put(key, integer);
     }
 
-    public void setData(String key, String string) {
-        data.put(key, string);
+    public void setCustomData(String key, String string) {
+        customData.put(key, string);
     }
 
-    public void setData(String key, boolean bool) {
-        data.put(key, bool);
+    public void setCustomData(String key, boolean bool) {
+        customData.put(key, bool);
     }
 
-    public void setData(String key, long lon) {
-        data.put(key, lon);
+    public void setCustomData(String key, long lon) {
+        customData.put(key, lon);
     }
 
-    public HashMap<String, Object> getData() {
-        return data;
+    public HashMap<String, Object> getCustomData() {
+        return customData;
     }
 
-    public void clearData() {
-        data.clear();
+    public void clearCustomData() {
+        customData.clear();
     }
 
     public HashMap<String, Object> getDefaults() {
