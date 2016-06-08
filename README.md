@@ -1,6 +1,8 @@
 # dmp-apisdk-java
 This library is a work in progress and not yet fully implemented.
 
+Add the `repositories` and `dependencies` to your project's `pom.xml`:
+
 ```
 <repositories>
         <repository>
