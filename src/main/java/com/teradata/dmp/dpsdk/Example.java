@@ -10,10 +10,11 @@ import com.google.gson.JsonObject;
 public class Example {
 
     public static void main(String args[]) {
-        Client client = new Client();
+        Client client = new Client("go.flx1.com");
         client.setScheme("http");
-        client.setHost("go.flx1.com");
         client.setPath("/dp");
+        
+        client.refreshHostAddresses();
 
         for (int i = 0; i < 10; i++) {
             Request request = new Request();

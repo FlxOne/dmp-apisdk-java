@@ -1,8 +1,14 @@
 package com.teradata.dmp.dpsdk;
 
 import com.google.gson.Gson;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.client.utils.URIBuilder;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -18,13 +24,27 @@ public class Client {
     private final URIBuilder builder = new URIBuilder();
     private final DefaultAsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
     private final AtomicLong runningCounter = new AtomicLong();
+    private final ArrayList<String> hostAddresses = new ArrayList<>();
+    private final String host;
+    private final Random random;
+
+    public Client(String host) {
+        this.host = host;
+        this.random = new Random();
+    }
+
+    public void refreshHostAddresses() {
+        try {
+            for (InetAddress addr : InetAddress.getAllByName(host)) {
+                hostAddresses.add(addr.getHostAddress());
+            }
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public void setScheme(String scheme) {
         builder.setScheme(scheme);
-    }
-
-    public void setHost(String host) {
-        builder.setHost(host);
     }
 
     public void setPath(String path) {
@@ -40,6 +60,9 @@ public class Client {
         request.addAttempt();
 
         builder.clearParameters();
+
+        // Round-robin
+        builder.setHost(this.hostAddresses.get(random.nextInt(this.hostAddresses.size())));
 
         request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
         request.getDefaults().entrySet().stream().forEach((entry) -> {
