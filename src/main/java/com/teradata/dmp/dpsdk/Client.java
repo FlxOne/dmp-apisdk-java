@@ -2,7 +2,6 @@ package com.teradata.dmp.dpsdk;
 
 import com.google.gson.Gson;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -11,7 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.client.utils.URIBuilder;
 import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.Response;
 
 /**
@@ -22,7 +23,7 @@ import org.asynchttpclient.Response;
 public class Client {
 
     private final URIBuilder builder = new URIBuilder();
-    private final DefaultAsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
+    private final DefaultAsyncHttpClient asyncHttpClient;
     private final AtomicLong runningCounter = new AtomicLong();
     private final ArrayList<String> hostAddresses = new ArrayList<>();
     private final String host;
@@ -31,6 +32,9 @@ public class Client {
     public Client(String host) {
         this.host = host;
         this.random = new Random();
+
+        AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder().setKeepAlive(true).build();
+        this.asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
     }
 
     public void refreshHostAddresses() {
