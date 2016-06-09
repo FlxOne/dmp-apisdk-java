@@ -15,16 +15,13 @@ public class Example {
         client.setHost("go.flx1.com");
         client.setPath("/dp");
 
-        Request request = new Request();
-
-        // Default properties
-        request.set(Dimensions.PIXEL_ID, "1");
-        request.set(Dimensions.FLXONE_CUSTOMER_ID, "11");
-        request.set(Dimensions.CAMPAIGN_ID, "123");
-
         for (int i = 0; i < 10; i++) {
-            // Clear data since we re-use the request object
-            request.clearCustomData();
+            Request request = new Request();
+
+            // Default properties
+            request.set(Dimensions.PIXEL_ID, "1");
+            request.set(Dimensions.FLXONE_CUSTOMER_ID, "11");
+            request.set(Dimensions.CAMPAIGN_ID, "123");
 
             // Custom properties
             request.setCustomData("gender", "male");
@@ -34,12 +31,10 @@ public class Example {
             user.addProperty("id", 1);
             user.addProperty("company", "Teradata");
             request.setCustomData("user", user);
-            
+
             // Execute
             client.execute(request);
         }
-
-        client.close();
     }
     
 }

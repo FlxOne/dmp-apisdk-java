@@ -14,6 +14,15 @@ public class Request {
 
     private final HashMap<String, Object> defaults = new HashMap<>();
     private final HashMap<String, Object> customData = new HashMap<>();
+    private int attempts = 0;
+
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void addAttempt() {
+        attempts++;
+    }
 
     public void set(String key, String value) {
         defaults.put(key, value);

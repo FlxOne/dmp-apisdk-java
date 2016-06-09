@@ -1,12 +1,12 @@
 package com.teradata.dmp.dpsdk;
 
 import com.google.gson.Gson;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.http.client.utils.URIBuilder;
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 
 /**
  * Client
@@ -16,7 +16,7 @@ import org.apache.http.client.utils.URIBuilder;
 public class Client {
 
     private final URIBuilder builder = new URIBuilder();
-    private final AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    private final DefaultAsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
     private final AtomicLong runningCounter = new AtomicLong();
 
     public void setScheme(String scheme) {
@@ -32,6 +32,13 @@ public class Client {
     }
 
     public void execute(Request request) {
+        if (request.getAttempts() >= 3) {
+            System.out.println("Max attempts reached");
+            return;
+        }
+
+        request.addAttempt();
+
         builder.clearParameters();
 
         request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
@@ -56,7 +63,6 @@ public class Client {
             }
 
             asyncHttpClient.prepareGet(url.toString()).execute(new AsyncCompletionHandler<Response>() {
-
                 @Override
                 public Response onCompleted(Response response) throws Exception {
                     synchronized (runningCounter) {
@@ -69,6 +75,9 @@ public class Client {
 
                 @Override
                 public void onThrowable(Throwable t) {
+                    // Retry
+                    execute(request);
+
                     System.out.println("onThrowable: " + t.getMessage());
                 }
 
@@ -79,8 +88,7 @@ public class Client {
     }
 
     public void close() {
-        // @todo: below doesn't wait properly?
-        // asyncHttpClient.closeAsynchronously();
+        asyncHttpClient.close();
     }
 
 }
