@@ -59,21 +59,7 @@ public class Client {
 
         request.addAttempt();
 
-        builder.clearParameters();
-
-        // Round-robin
-        builder.setHost(this.hostAddresses.get(random.nextInt(this.hostAddresses.size())));
-
-        request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
-        request.getDefaults().entrySet().stream().forEach((entry) -> {
-            builder.addParameter(entry.getKey(), entry.getValue().toString());
-        });
-
-        System.out.println(builder.toString());
-
         try {
-            URI url = builder.build();
-
             long running = runningCounter.incrementAndGet();
             if (running > 100) {
                 try {
@@ -85,7 +71,19 @@ public class Client {
                 }
             }
 
-            asyncHttpClient.prepareGet(url.toString()).execute(new AsyncCompletionHandler<Response>() {
+            builder.clearParameters();
+
+            // Round-robin
+            builder.setHost(this.hostAddresses.get(random.nextInt(this.hostAddresses.size())));
+
+            request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
+            request.getDefaults().entrySet().stream().forEach((entry) -> {
+                builder.addParameter(entry.getKey(), entry.getValue().toString());
+            });
+
+            System.out.println(builder.toString());
+
+            asyncHttpClient.prepareGet(builder.build().toString()).execute(new AsyncCompletionHandler<Response>() {
                 @Override
                 public Response onCompleted(Response response) throws Exception {
                     synchronized (runningCounter) {
