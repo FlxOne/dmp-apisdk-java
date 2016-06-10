@@ -5,6 +5,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,9 +28,9 @@ public class Client {
     private final URIBuilder builder = new URIBuilder();
     private final DefaultAsyncHttpClient asyncHttpClient;
     private final AtomicLong runningCounter = new AtomicLong();
-    private final ArrayList<String> hostAddresses = new ArrayList<>();
     private final String host;
     private final Random random;
+    private final CompletableFuture<ArrayList<String>> future = new CompletableFuture<>();
 
     public Client(String host) {
         this.host = host;
@@ -35,9 +38,18 @@ public class Client {
 
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder().setKeepAlive(true).build();
         this.asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                future.complete(getHostAddresses());
+            }
+        }, 0, 1000);
     }
 
-    public void refreshHostAddresses() {
+    public ArrayList<String> getHostAddresses() {
+        ArrayList<String> hostAddresses = new ArrayList<>();
+
         try {
             for (InetAddress addr : InetAddress.getAllByName(host)) {
                 hostAddresses.add(addr.getHostAddress());
@@ -45,6 +57,8 @@ public class Client {
         } catch (UnknownHostException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        return hostAddresses;
     }
 
     public void setScheme(String scheme) {
@@ -56,60 +70,62 @@ public class Client {
     }
 
     public void execute(Request request) {
-        if (request.getAttempts() >= 3) {
-            System.out.println("Max attempts reached");
-            return;
-        }
-
-        request.addAttempt();
-
-        try {
-            long running = runningCounter.incrementAndGet();
-            if (running > 100) {
-                try {
-                    synchronized (runningCounter) {
-                        runningCounter.wait();
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+        future.whenComplete((hostAddresses, unusedButRequired) -> {
+            if (request.getAttempts() >= 3) {
+                System.out.println("Max attempts reached");
+                return;
             }
 
-            builder.clearParameters();
+            request.addAttempt();
 
-            // Round-robin
-            builder.setHost(this.hostAddresses.get(random.nextInt(this.hostAddresses.size())));
+            try {
+                long running = runningCounter.incrementAndGet();
+                if (running > 100) {
+                    try {
+                        synchronized (runningCounter) {
+                            runningCounter.wait();
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
 
-            request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
-            request.getDefaults().entrySet().stream().forEach((entry) -> {
-                builder.addParameter(entry.getKey(), entry.getValue().toString());
-            });
+                builder.clearParameters();
 
-            System.out.println(builder.toString());
+                // Round-robin
+                builder.setHost(hostAddresses.get(random.nextInt(hostAddresses.size())));
 
-            asyncHttpClient.prepareGet(builder.build().toString()).execute(new AsyncCompletionHandler<Response>() {
-                @Override
-                public Response onCompleted(Response response) throws Exception {
-                    synchronized (runningCounter) {
-                        runningCounter.decrementAndGet();
-                        runningCounter.notify();
+                request.set(Dimensions.EXTERNAL_DATA, new Gson().toJson(request.getCustomData()));
+                request.getDefaults().entrySet().stream().forEach((entry) -> {
+                    builder.addParameter(entry.getKey(), entry.getValue().toString());
+                });
+
+                System.out.println(builder.toString());
+
+                asyncHttpClient.prepareGet(builder.build().toString()).execute(new AsyncCompletionHandler<Response>() {
+                    @Override
+                    public Response onCompleted(Response response) throws Exception {
+                        synchronized (runningCounter) {
+                            runningCounter.decrementAndGet();
+                            runningCounter.notify();
+                        }
+
+                        return response;
                     }
 
-                    return response;
-                }
+                    @Override
+                    public void onThrowable(Throwable t) {
+                        // Retry
+                        execute(request);
 
-                @Override
-                public void onThrowable(Throwable t) {
-                    // Retry
-                    execute(request);
+                        System.out.println("onThrowable: " + t.getMessage());
+                    }
 
-                    System.out.println("onThrowable: " + t.getMessage());
-                }
-
-            });
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+                });
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        });
     }
 
     public void close() {

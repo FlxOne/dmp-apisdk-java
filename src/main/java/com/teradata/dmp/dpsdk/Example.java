@@ -13,8 +13,6 @@ public class Example {
         Client client = new Client("go.flx1.com");
         client.setScheme("http");
         client.setPath("/dp");
-        
-        client.refreshHostAddresses();
 
         for (int i = 0; i < 10; i++) {
             Request request = new Request();
