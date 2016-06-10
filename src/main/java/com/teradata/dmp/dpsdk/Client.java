@@ -36,7 +36,11 @@ public class Client {
         this.host = host;
         this.random = new Random();
 
-        AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder().setKeepAlive(true).build();
+        DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder();
+        configBuilder.setKeepAlive(true);
+        configBuilder.setAcceptAnyCertificate(true);
+
+        AsyncHttpClientConfig asyncHttpClientConfig = configBuilder.build();
         this.asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {

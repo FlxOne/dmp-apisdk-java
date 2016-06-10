@@ -11,7 +11,7 @@ public class Example {
 
     public static void main(String args[]) {
         Client client = new Client("go.flx1.com");
-        client.setScheme("http");
+        client.setScheme("https");
         client.setPath("/dp");
 
         for (int i = 0; i < 10; i++) {
