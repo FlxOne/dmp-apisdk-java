@@ -1,12 +1,23 @@
 package com.teradata.dmp.apisdk.client;
 
 import com.teradata.dmp.apisdk.config.IConfig;
+import com.teradata.dmp.apisdk.request.IRequest;
+import com.teradata.dmp.apisdk.request.Request;
+import com.teradata.dmp.apisdk.response.IResponse;
+import com.teradata.dmp.apisdk.response.Response;
+import com.teradata.dmp.apisdk.response.ResponseStatus;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -14,14 +25,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.teradata.dmp.apisdk.request.IRequest;
-import com.teradata.dmp.apisdk.request.Request;
-import com.teradata.dmp.apisdk.response.IResponse;
-import com.teradata.dmp.apisdk.response.Response;
-import com.teradata.dmp.apisdk.response.ResponseStatus;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -30,6 +34,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Random;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 
 public abstract class AbstractClient implements IClient {
@@ -56,7 +63,6 @@ public abstract class AbstractClient implements IClient {
         }
         authToken = resp.getAsJsonPrimitive("token").getAsString();
         csrfToken = resp.getCsrfToken();
-        logger.info("Authenticated " + authToken + " " + csrfToken);
         return true;
     }
 
@@ -64,15 +70,11 @@ public abstract class AbstractClient implements IClient {
         // Need to login?
         if (!isAuthRequest(req)) {
             if (authToken == null || csrfToken == null || authToken.isEmpty() || csrfToken.isEmpty()) {
-                logger.info("Need to authenticate");
                 if (!authenticate()) {
                     throw new ClientException(new Exception("Failed to authenticate"));
                 }
             }
         }
-
-        // Log request
-        logger.info("Executing " + req.getMethod() + " request to " + req.getURI());
 
         // Execute
         CloseableHttpResponse cHttpResp = null;
