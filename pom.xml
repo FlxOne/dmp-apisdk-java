@@ -6,7 +6,7 @@
 
     <groupId>com.teradata.dmp</groupId>
     <artifactId>apisdk</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1</version>
 
     <distributionManagement>
         <repository>

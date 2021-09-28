@@ -18,12 +18,11 @@ pipeline {
         }
     }
     post {
-//         success {
-//             slackSend channel: '#dmp-dev', message: "Build ${env.CHANGE_BRANCH} ${BUILD_URL}"
-//         }
-//         failure {
-//             slackSend channel: '#dmp-dev', message: "Build failed ${env.CHANGE_BRANCH} ${BUILD_URL}"
-//         }
+        success {
+            slackSend channel: '#dmp-dev', message: "Build ${env.CHANGE_BRANCH} ${BUILD_URL}"
+        }
+        failure {
+            slackSend channel: '#dmp-dev', message: "Build failed ${env.CHANGE_BRANCH} ${BUILD_URL}"
+        }
     }
 }
-
