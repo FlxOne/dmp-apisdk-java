@@ -12,7 +12,6 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 
 public class TestClient {
-    @Test
     public void testClient() throws ClientException {
         // Conf
         IConfig conf = Config.getDefault();
@@ -61,7 +60,6 @@ public class TestClient {
         assertTrue(resp3.getAsJsonObject("user").getAsJsonPrimitive("id").getAsString().length() > 0);
     }
 
-    @Test
     public void testClientHMACOption() throws ClientException {
         // Conf
         IConfig conf = Config.getDefault();
