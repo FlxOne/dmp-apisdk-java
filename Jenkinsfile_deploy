@@ -6,25 +6,11 @@ pipeline {
         buildDiscarder logRotator(numToKeepStr: '5')
     }
     stages {
-        stage('Package') {
-            steps {
-                script {
-                    sh 'mvn compile clean package'
-                }
-            }
-        }
         stage('Deploy') {
             steps {
                 script {
                     def exitCode = sh returnStatus: true, script: """
-                     mvn deploy:deploy-file \
-                        -Durl=https://m2repo.muc.ecircle.de/repo/content/repositories/weirdstuff \
-                        -DrepositoryId=weirdstuff \
-                        -DgroupId=com.teradata.dmp \
-                        -DartifactId=apisdk \
-                        -Dversion=${VERSION} \
-                        -Dpackaging=jar \
-                        -Dfile=target/apisdk-${VERSION}.jar
+                    mvn deploy -DskipTests -Drevision=${VERSION}
                     """
                     if (exitCode > 0) {
                         error("Deployment failed")

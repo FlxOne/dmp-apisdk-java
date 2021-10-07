@@ -56,4 +56,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Release generated files
+release.properties
+
 target
