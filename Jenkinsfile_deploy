@@ -19,4 +19,12 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            slackSend channel: '#dmp-releases', message: "Deployed dmp-apisdk-java:${params.VERSION}\r\n${BUILD_URL}"
+        }
+        failure {
+            slackSend channel: '#dmp-dev', message: "DEPLOYMENT attribute-writer-topology:${params.VERSION} FAILED\r\n${BUILD_URL}"
+        }
+    }
 }
