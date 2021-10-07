@@ -56,10 +56,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# Example
-src/main/java/ExampleApiRequest.java
+# Release generated files
+release.properties
 
-# OS X Directory index files
-.DS_Store
-
-target/**
+target
